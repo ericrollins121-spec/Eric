@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rental Search</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Rental Search</h1>
+    <p class="tagline">Aggregates Craigslist, Apartments.com, and (stubbed) Facebook Marketplace.</p>
+  </header>
+
+  <form id="search-form">
+    <label>City
+      <input type="text" name="city" value="{{ default_city }}" />
+    </label>
+    <label>Min $
+      <input type="number" name="min_price" min="0" step="50" />
+    </label>
+    <label>Max $
+      <input type="number" name="max_price" min="0" step="50" />
+    </label>
+    <label>Min Beds
+      <input type="number" name="min_bedrooms" min="0" max="10" />
+    </label>
+    <label>Keywords
+      <input type="text" name="query" placeholder="e.g. pet friendly" />
+    </label>
+    <button type="submit">Search</button>
+  </form>
+
+  <div id="status"></div>
+  <div id="sources"></div>
+  <div id="results"></div>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>
