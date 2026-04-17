@@ -127,6 +127,37 @@ form select {
 }
 .rss:hover { color: var(--accent); border-color: var(--accent); }
 
+.view-toggle {
+  align-self: flex-end;
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.view-btn {
+  background: transparent;
+  color: var(--muted);
+  border: 0;
+  padding: 7px 14px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+}
+.view-btn.active { background: var(--accent); color: white; }
+
+#map {
+  height: calc(100vh - 220px);
+  min-height: 480px;
+  margin: 16px 32px 48px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.leaflet-popup-content { color: #111; min-width: 180px; }
+.leaflet-popup-content a { color: #1d6fea; font-weight: 600; text-decoration: none; }
+.leaflet-popup-content .price { color: #1d6fea; font-weight: 700; }
+.leaflet-popup-content .src { color: #666; font-size: 11px; text-transform: uppercase; }
+
 #status, #sources {
   padding: 8px 32px;
   font-size: 13px;

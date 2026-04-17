@@ -53,6 +53,11 @@ The container runs `gunicorn` with 2 workers × 4 threads.
 - "NEW" badge on listings seen for the first time (per browser).
 - `GET /feed.rss?city=...` — RSS 2.0 feed of the same query, drop it into a
   feed reader to get notified when new listings match.
+- Map view (Leaflet + OpenStreetMap tiles) with pins for every listing whose
+  location can be geocoded. Geocoding goes through `/api/geocode`, which
+  wraps the free Nominatim service: rate-limited to 1 req/s, cached
+  server-side (a week) and client-side (`localStorage`) so cold map loads are
+  the only slow ones.
 
 ## Project layout
 
@@ -62,10 +67,12 @@ scrapers/
   base.py              Listing dataclass
   cache.py             Thread-safe TTL cache
   dedupe.py            Cross-source duplicate collapsing
+  geocoder.py          Nominatim wrapper (rate-limited, cached)
   craigslist.py        RSS-based scraper
   apartments.py        HTML scraper for apartments.com
+  zumper.py            HTML scraper for zumper.com
   facebook.py          Stub with plug-in instructions
-tests/test_parsing.py  Unit tests for extraction + dedup
+tests/                 Unit + endpoint tests (22 total)
 templates/index.html
 static/style.css
 static/script.js

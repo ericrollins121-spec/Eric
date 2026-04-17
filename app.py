@@ -9,6 +9,7 @@ from scrapers import (
     ApartmentsScraper,
     CraigslistScraper,
     FacebookMarketplaceScraper,
+    Geocoder,
     Listing,
     TTLCache,
     ZumperScraper,
@@ -27,6 +28,7 @@ DEFAULT_CITY = os.environ.get("RENTAL_DEFAULT_CITY", "austin")
 CACHE_TTL = int(os.environ.get("RENTAL_CACHE_TTL", "300"))
 
 _cache = TTLCache(ttl_seconds=CACHE_TTL)
+_geocoder = Geocoder()
 
 SORTS = {
     "price_asc": lambda l: (l.price is None, l.price or 0),
@@ -108,6 +110,20 @@ def search():
             "results": [l.to_dict() for l in results],
         }
     )
+
+
+@app.route("/api/geocode")
+def geocode():
+    """Resolve a single location string to lat/lng. Cached aggressively;
+    Nominatim is rate-limited so the first uncached call may take ~1s."""
+    q = (request.args.get("q") or "").strip()
+    city_hint = (request.args.get("city") or "").strip() or None
+    if not q:
+        return jsonify({"error": "missing q"}), 400
+    coords = _geocoder.lookup(q, city_hint=city_hint)
+    if coords is None:
+        return jsonify({"q": q, "found": False})
+    return jsonify({"q": q, "found": True, "lat": coords[0], "lng": coords[1]})
 
 
 @app.route("/feed.rss")
