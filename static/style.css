@@ -69,6 +69,40 @@ form button {
 form button:hover { background: var(--accent-hover); }
 form button:disabled { opacity: 0.6; cursor: wait; }
 
+form button.ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+form button.ghost.active { color: var(--accent); border-color: var(--accent); }
+
+form select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.save-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.55);
+  color: white;
+  border: 0;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+.save-btn.saved { color: #ff6b6b; }
+
+.card { position: relative; }
+
 #status, #sources {
   padding: 8px 32px;
   font-size: 13px;

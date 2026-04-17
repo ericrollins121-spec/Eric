@@ -28,7 +28,16 @@
     <label>Keywords
       <input type="text" name="query" placeholder="e.g. pet friendly" />
     </label>
+    <label>Sort
+      <select name="sort">
+        <option value="price_asc">Price (low to high)</option>
+        <option value="price_desc">Price (high to low)</option>
+        <option value="beds_desc">Most bedrooms</option>
+        <option value="newest">Newest</option>
+      </select>
+    </label>
     <button type="submit">Search</button>
+    <button type="button" id="saved-toggle" class="ghost">Saved only</button>
   </form>
 
   <div id="status"></div>

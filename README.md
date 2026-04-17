@@ -31,18 +31,37 @@ Override the default city without editing code:
 RENTAL_DEFAULT_CITY=seattle python app.py
 ```
 
+## Features
+
+- Aggregates multiple sources in parallel.
+- Deduplicates listings that appear on more than one site (by URL, or by
+  price + bedrooms + normalized location).
+- In-process TTL cache so rapid re-searches don't hammer upstream.
+  Override with `RENTAL_CACHE_TTL=60`.
+- Sort by price (asc/desc), bedrooms, or newest.
+- Save listings locally (stored in `localStorage`) and filter to "saved only".
+
 ## Project layout
 
 ```
 app.py                 Flask app + /api/search endpoint
 scrapers/
   base.py              Listing dataclass
+  cache.py             Thread-safe TTL cache
+  dedupe.py            Cross-source duplicate collapsing
   craigslist.py        RSS-based scraper
   apartments.py        HTML scraper for apartments.com
   facebook.py          Stub with plug-in instructions
+tests/test_parsing.py  Unit tests for extraction + dedup
 templates/index.html
 static/style.css
 static/script.js
+```
+
+## Tests
+
+```bash
+python -m unittest discover -s tests -v
 ```
 
 ## Adding a new source
