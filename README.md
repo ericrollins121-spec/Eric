@@ -10,6 +10,7 @@ search form.
 | -------------------- | ------- | ------------------------------------------------------------------------------------------------------------------ |
 | Craigslist           | Working | Uses the public RSS feed (`?format=rss`). No auth needed.                                                          |
 | Apartments.com       | Working | Parses public result pages. Subject to anti-bot measures; cache results.                                           |
+| Zumper               | Working | Parses `/apartments-for-rent/<city>` result pages.                                                                 |
 | Facebook Marketplace | Stub    | Requires login and scraping violates Meta's ToS. See `scrapers/facebook.py` for how to plug in a legitimate source. |
 
 The Facebook Marketplace scraper is intentionally a documented stub. Rather than
@@ -31,6 +32,15 @@ Override the default city without editing code:
 RENTAL_DEFAULT_CITY=seattle python app.py
 ```
 
+### Docker
+
+```bash
+docker build -t rental-search .
+docker run -p 5000:5000 -e RENTAL_DEFAULT_CITY=seattle rental-search
+```
+
+The container runs `gunicorn` with 2 workers × 4 threads.
+
 ## Features
 
 - Aggregates multiple sources in parallel.
@@ -40,6 +50,9 @@ RENTAL_DEFAULT_CITY=seattle python app.py
   Override with `RENTAL_CACHE_TTL=60`.
 - Sort by price (asc/desc), bedrooms, or newest.
 - Save listings locally (stored in `localStorage`) and filter to "saved only".
+- "NEW" badge on listings seen for the first time (per browser).
+- `GET /feed.rss?city=...` — RSS 2.0 feed of the same query, drop it into a
+  feed reader to get notified when new listings match.
 
 ## Project layout
 

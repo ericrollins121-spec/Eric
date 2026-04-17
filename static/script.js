@@ -4,11 +4,16 @@ const sourcesEl = document.getElementById("sources");
 const resultsEl = document.getElementById("results");
 const button = form.querySelector("button[type=submit]");
 const savedToggle = document.getElementById("saved-toggle");
+const rssLink = document.getElementById("rss-link");
 
 const SAVED_KEY = "rental-search:saved";
+const SEEN_KEY = "rental-search:seen";
+
 let savedUrls = new Set(JSON.parse(localStorage.getItem(SAVED_KEY) || "[]"));
+let seenUrls = new Set(JSON.parse(localStorage.getItem(SEEN_KEY) || "[]"));
 let showSavedOnly = false;
 let lastListings = [];
+let freshUrls = new Set();
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -29,16 +34,20 @@ resultsEl.addEventListener("click", (e) => {
   else savedUrls.add(url);
   localStorage.setItem(SAVED_KEY, JSON.stringify([...savedUrls]));
   btn.classList.toggle("saved");
-  btn.textContent = savedUrls.has(url) ? "♥" : "♡";
+  btn.textContent = savedUrls.has(url) ? "\u2665" : "\u2661";
   if (showSavedOnly) renderResults(lastListings);
 });
 
-async function runSearch() {
+function currentQueryString() {
   const data = new FormData(form);
   const params = new URLSearchParams();
-  for (const [k, v] of data.entries()) {
-    if (v) params.append(k, v);
-  }
+  for (const [k, v] of data.entries()) if (v) params.append(k, v);
+  return params.toString();
+}
+
+async function runSearch() {
+  const qs = currentQueryString();
+  rssLink.href = `/feed.rss?${qs}`;
 
   button.disabled = true;
   statusEl.textContent = "Searching...";
@@ -46,12 +55,20 @@ async function runSearch() {
   resultsEl.innerHTML = "";
 
   try {
-    const resp = await fetch(`/api/search?${params.toString()}`);
+    const resp = await fetch(`/api/search?${qs}`);
     const json = await resp.json();
     renderSources(json.sources || [], json.deduped || 0);
+
     lastListings = json.results || [];
+    freshUrls = new Set(
+      lastListings.map((l) => l.url).filter((u) => u && !seenUrls.has(u))
+    );
+    for (const u of freshUrls) seenUrls.add(u);
+    localStorage.setItem(SEEN_KEY, JSON.stringify([...seenUrls].slice(-2000)));
+
     renderResults(lastListings);
-    statusEl.textContent = `${json.count} listings in ${json.city}`;
+    const freshNote = freshUrls.size ? ` · ${freshUrls.size} new` : "";
+    statusEl.textContent = `${json.count} listings in ${json.city}${freshNote}`;
   } catch (err) {
     statusEl.textContent = `Error: ${err.message}`;
   } finally {
@@ -84,7 +101,7 @@ function renderResults(listings) {
 }
 
 function card(l) {
-  const price = l.price ? `$${l.price.toLocaleString()}` : "—";
+  const price = l.price ? `$${l.price.toLocaleString()}` : "\u2014";
   const beds = l.bedrooms != null ? `${l.bedrooms} bd` : "";
   const loc = l.location || "";
   const img = l.image
@@ -93,12 +110,14 @@ function card(l) {
   const desc = l.description ? `<div class="desc">${escapeHtml(l.description)}</div>` : "";
   const posted = l.posted_at ? new Date(l.posted_at).toLocaleDateString() : "";
   const isSaved = savedUrls.has(l.url);
+  const isFresh = freshUrls.has(l.url);
   return `
-    <article class="card">
+    <article class="card ${isFresh ? "fresh" : ""}">
       ${img}
+      ${isFresh ? '<span class="fresh-badge">NEW</span>' : ""}
       <button class="save-btn ${isSaved ? "saved" : ""}" data-url="${escapeAttr(
     l.url
-  )}" title="Save listing">${isSaved ? "♥" : "♡"}</button>
+  )}" title="Save listing">${isSaved ? "\u2665" : "\u2661"}</button>
       <div class="body">
         <a class="title" href="${escapeAttr(l.url)}" target="_blank" rel="noopener">${escapeHtml(
     l.title || "Listing"
